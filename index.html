@@ -1,1 +1,149 @@
 Hello World HJ
+
+
+# 13. 리액트 라우터로 SPA 개발하기
+
+생성일: January 10, 2023 9:56 AM
+태그: React, Router, SPA
+
+- 목차
+
+# SPA(Single Page Application)?
+
+## 전통적인 웹 페이지
+
+![Untitled](13%20%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A2%E1%86%A8%E1%84%90%E1%85%B3%20%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%90%E1%85%A5%E1%84%85%E1%85%A9%20SPA%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5%201b623967a2c94eb4845f70aa0681b98a/Untitled.png)
+
+- 다른 페이지로 이동할 때마다 새로운 html 을 받아옴
+- 페이지를 로딩할 때마다 서버에서 리소스를 전달받아 해석한 뒤 화면에 보여줌
+- 사전에 html 파일을 만들어서 제공
+- 데이터에 따라 유동적인 html 을 생성해주는 탬플릿 엔진을 사용
+- 제공되는 정보가 많음 → 새로운 화면을 보여 주어야 할 때마다 서버 측에서 모든 뷰를 준비한다면 성능상의 문제 발생
+- 트래픽 多 , 서버 과부화
+- 애플리케이션 내에서 화면 전환이 일어날 때마다 html 을 계속 서버에 새로 요청하면 사용자의 인터페이스에서 사용하고 있던 상태를 유지하는 것도 번거롭고, 바뀌지 않은 부분까지 새로 불러와서 보여 주어야 함 ⇒ 불필요한 로딩
+
+## SPA
+
+![Untitled](13%20%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A2%E1%86%A8%E1%84%90%E1%85%B3%20%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%90%E1%85%A5%E1%84%85%E1%85%A9%20SPA%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5%201b623967a2c94eb4845f70aa0681b98a/Untitled%201.png)
+
+- 뷰 랜더링을 사용자의 브라우저가 담담하도록 하고 애플리케이션을 브라우저에 불러와서 실행시킨 후에 사용자와의 인터랙션이 발생하면 필요한 부분만 자바스크립트를 사용하여 업데이트
+- 서버에서 사용자에게 제공하는 페이지는 한 종류이지만, 해당 페이지에서 로딩된 자바스크립트와 현재 사용자 브라우저의 주소 상태에 따라 다양한 화면을 보여 줄 수 있음
+- 다른 주소에 다른 화면을 보여 주는 것을 라우팅, 리액트 라이브러리 자체에 내장되어있지않음
+- 브라우저의 API 를 직접 사용하여 이를 관리하거나, 라이브러리를 사용하여 이 작업을 더욱 쉽게 구현 가능
+- react-router, reach-router, Next.js 등
+- 앱의 규모가 커지면 자바스크립트 파일이 너무 커짐 → 코드 스플리팅을 사용하면 라우트별로 파일들을 나누어서 트래픽과 로딩 속도를 개선할 수 있음
+
+# SPA 프로젝트
+
+## 준비
+
+```jsx
+npx create-react-app router-tutorial
+
+npm install react-router-dom
+```
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <BrowserRouter>
+    <App/>
+  </BrowserRouter>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+```
+
+- src/index.js 에서 react-router-dom 이 내장되어있는 `BrowerRouter` 라는 컴포넌트를 사용하여 감싸둠
+- 웹 애플리케이션에 HTML5 의 History API 를 사용하여 페이지를 새로고침하지 않고도 주소를 변경하고 현재 주소에 관련된 정보를 props로 쉽게 조회하거나 사용할 수 있음
+
+## 라우터 적용(V6)
+
+- `BrowserRouter`  : history API 를 사용해 URL 과 UI 를 동기화하는 라우터
+- `Roue` : 컴포넌트의 속성에 설정된 URL과 현재 경로가 일치하면 해당하는 컴포넌트, 함수를 렌더링한다
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <BrowserRouter>
+    <App/>
+  </BrowserRouter>
+);
+```
+
+```jsx
+import logo from './logo.svg';
+import './App.css';
+import { Route, Router, Routes } from 'react-router-dom';
+import Home from './Home';
+import About from './About';
+
+function App() {
+  return (
+    <Routes>
+      <Route path='/' element={<Home/>}></Route>
+      <Route path='/about' element={<About/>}></Route>
+    </Routes>
+  );
+}
+
+export default App;
+```
+
+```jsx
+const Home = () => {
+    return(
+        <div>
+            <h1>Home</h1>
+            <p>홈, 그 페이지는 가장 먼저 보여지는 페이지</p>
+        </div>
+    )
+}
+export default Home;
+```
+
+```jsx
+const About = () => {
+    return (
+        <div>
+            <h1>소개</h1>
+            <p>이 프로젝트는 리액트 라우터 기초를 실습해 보는 예제 프로젝트입니다</p>
+        </div>
+    )
+}
+export default About;
+```
+
+![Untitled](13%20%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A2%E1%86%A8%E1%84%90%E1%85%B3%20%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%90%E1%85%A5%E1%84%85%E1%85%A9%20SPA%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5%201b623967a2c94eb4845f70aa0681b98a/Untitled%202.png)
+
+![Untitled](13%20%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A2%E1%86%A8%E1%84%90%E1%85%B3%20%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%90%E1%85%A5%E1%84%85%E1%85%A9%20SPA%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%92%E1%85%A1%E1%84%80%E1%85%B5%201b623967a2c94eb4845f70aa0681b98a/Untitled%203.png)
+
+## `Link` 사용해서 다른 주소로 이동
+
+- `a` 태그 사용 ❌ ⇒ 페이지 전환하는 과정에서 페이지를 새로 불러오기 때문에 애플리케이션이 들고 있던 상태들을 모두 날려버림
+- 랜더링된 컴포넌트들도 모두 사라지고 다시 처음부터 렌더링하게됨
+- `Link` 사용 → 페이지를 새로 불러오지 않고 애플리케이션은 그대로 유지한 상태에서 HTML5 History API 를 사용하여 페이지의 주소만 변경해줌
+
+[react-router/v5.md at dev · remix-run/react-router](https://github.com/remix-run/react-router/blob/dev/docs/upgrading/v5.md)
+
+## 중첩URL
+
+```jsx
+<Route path="/about/intro" element={<Intro/>}>
+```
